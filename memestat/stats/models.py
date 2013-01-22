@@ -1,7 +1,10 @@
 from django.db import models
 
 class ImageMacro(models.Model):
-  filename = models.FilePathField(max_length = 200)
+  key = models.CharField(max_length = 1000)
+
+##For the next two models, created refers to thread creation,
+##and created_at refers to object creation
 
 class Meme(models.Model):
   classification = models.ForeignKey(ImageMacro, null = True, related_name = 'classification')
@@ -15,9 +18,10 @@ class Meme(models.Model):
   created = models.IntegerField()
   threadLink = models.URLField()
   strong_classification = models.BooleanField()
-  img_corrupt = models.BooleanField()
+  created_at = models.DateTimeField(auto_now_add = True)
 
 class PotentialImageMacro(models.Model):
+  key = models.CharField(max_length = 1000)
   thumbnailLink = models.URLField()
   fullSizeLink = models.URLField()
   score = models.IntegerField(null = True)
@@ -25,5 +29,4 @@ class PotentialImageMacro(models.Model):
   source = models.CharField(max_length = 200)
   created = models.IntegerField()
   threadLink = models.URLField()
-  title = models.CharField(max_length = 200)
-
+  created_at = models.DateTimeField(auto_now_add = True)
