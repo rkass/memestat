@@ -17,8 +17,8 @@ class Meme(models.Model):
   source = models.CharField(max_length = 200)
   created = models.IntegerField()
   threadLink = models.URLField()
-  strong_classification = models.BooleanField()
   created_at = models.DateTimeField(auto_now_add = True)
+  img_corrput = models.BooleanField()
 
 class PotentialImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
@@ -30,3 +30,4 @@ class PotentialImageMacro(models.Model):
   created = models.IntegerField()
   threadLink = models.URLField()
   created_at = models.DateTimeField(auto_now_add = True)
+  active = models.BooleanField(default = True)

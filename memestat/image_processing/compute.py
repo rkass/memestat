@@ -1,8 +1,18 @@
 import Image
 import math
-import sys
-sys.path.append("..")
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import s3
+
+#performs side effex on im1
+def merge(im1, img2, x): 
+  i1 = im1.load()
+  img2 = img2.resize(im1.size)
+  i2 = img2.load()
+  for x in range(img2.size[0]):
+    for y in range(img2.size[1]):
+      i1[x, y] = ((i1[x, y][0]*x + i2[x, y][0]) / (x + 1), 
+              (i1[x, y][1]*x + i2[x, y][1]) / (x + 1),(i1[x, y][2]*x + i2[x, y][2]) / (x + 1))
 
 def oneDPearsonHelp(img1, img2):
   initWidth, initHeight = img1.size
@@ -78,9 +88,9 @@ def distanceTop(target, bucket):
   bestKey = ""
   for k, v in s3.getImgs(bucket):
     thisDist = rawDistanceHelp(target, centerCut(v))
-      if thisDist < best:
-        best = thisDist
-        bestKey = k
+    if thisDist < best:
+      best = thisDist
+      bestKey = k
   return (bestKey, best)
 
 def correlationTop(target, bucket):

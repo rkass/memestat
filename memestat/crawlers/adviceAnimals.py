@@ -1,60 +1,51 @@
-import merge as m
-import shutil
-import os
+import Image
 import urllib3
 import json
+import cStringIO as cS
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import settings
-import sys
-sys.path.append("..")
-import image_processing.classify as classify
+import s3
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'image_processing')))
+import classify
+import compute
 from django.core.management import setup_environ
 setup_environ(settings)
 from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro
-import Image
-dropBoxDir = str.strip(open('../dropBoxDir', 'r').read())
 
 def fullSizePhoto(url):
   page = urllib3.PoolManager().request('GET', url)._body
   pageRev = page[:(page.find('.jpg') + 4)][::-1]
   return pageRev[:pageRev.find('=') - 1][::-1]
 
-def oldestFileInTree(rootfolder, extension = ".jpg"):
-    return min(
-        (os.path.join(dirname, filename)
-        for dirname, dirnames, filenames in os.walk(rootfolder)
-        for filename in filenames
-        if filename.endswith(extension)),
-        key=lambda fn: os.stat(fn).st_mtime)
-##here
-def potentialize(permalink):
-  if len(os.listdir(dropBoxDir + 'potential_libs/')) > 500:
-    #delete a potential lib before adding this one
-    os.remove(oldestFileInTree(dropBoxDir + 'potential_libs/')) 
-  shutil.copyfile(dropBoxDir + 'target.jpg', dropBoxDir + 'potential_libs/' + permalink + '.jpg')
-
-def librarize(fileName):
-  print fileName
-  shutil.copyfile(dropBoxDir + 'potential_libs/' + fileName, dropBoxDir + 'library/' + fileName)
-  os.remove(dropBoxDir + 'potential_libs/' + fileName)
-  pim = PotentialImageMacro.objects.get(title = fileName)
-  im = ImageMacro.objects.create(filename = 'library/' + fileName)
+##sets oldest pim to inactive and removes it from s3 if necessary
+##adds new pim to s3
+def potentialize(threadLink, target):
+  pims = PotentialImageMacros.objects.filter(active = True).order_by('created_at')
+  if pims.count() > 500:
+    #deactivate the oldest pim
+    s3.delete('potentialmacros', pims[0].key)
+    pims[0].active = False
+  s3.add('potentialmacros', threadLink, target) 
+  
+def librarize(key):
+  s3.add('macros', key, s3.getImg('potentialmacros', key))
+  s3.delete('potentialmacros', key)
+  pim = PotentialImageMacro.objects.get(key = key)
+  pim.active = False
+  im = ImageMacro.objects.create(key = key)
   m = Meme.objects.get(threadLink = pim.threadLink)
   m.classification = im
   m.topdist = 0
-  m.strong_classification = True
   m.save()
-  pim.delete()
 
-def merge(lib_img_path, macro, detract = 0):
-  libimg = Image.open(dropBoxDir + lib_img_path)
-  targimg = Image.open(dropBoxDir + 'target.jpg')
+def merge(macro, target):
+  macroimg = s3.getImg('macros', macro.key)
   backedby = Meme.objects.filter(classification = macro).count()
-  m.merge(libimg, targimg, backedby - detract)
-  if ".jpg" not in (dropBoxDir + lib_img_path):
-    libimg.save(dropBoxDir + lib_img_path + ".jpg")
-  libimg.save(dropBoxDir + lib_img_path)
+  compute.merge(macroimg, target, backedby)
+  s3.replace('macros', macro.key, macroimg)
 
 def processItem(arr, target):
   q = Meme.objects.filter(threadLink = arr['threadLink'])
@@ -69,62 +60,58 @@ def processItem(arr, target):
     m.save()
   else:
     #have not evaluated this submission yet, run tests and store
-    c2 = False #variable determining if the image was classified according to a potential or established macro
     #classify.classify() gets 2 elements: image macro/none, strong/weak
+    img_corrupt = False
     classification = classify.classify(target, 'macros') 
     if classification[0] == None and classification[1] != None:
-      c2 = True
       macro = None
       #try classifying on potential libs
-      classification2 = classify.classify(target, 'potentialmacros')
-      if classification2[0] == None:
+      classification = classify.classify(target, 'potentialmacros')
+      if classification[0] == None:
         #add image to potential_libs
         p = PotentialImageMacro(thumbnailLink = arr['thumbnail'], fullSizeLink = arr['fullSizeLink'],
           score = arr['score'], submitter = arr['author'], source = arr['source'], created = arr['created']
           , threadLink = arr['threadLink'], key = arr['threadlink'])
         p.save()
-        potentialize(data['threadlink'])
-      elif classification2[2] < 20: #only classify as potential_lib if very confident
-        librarize(classification2[0][8:])
-        macro = ImageMacro.objects.get(filename = 'library/' + classification2[0][8:])
-        print "Added " + classification2[0][8:] + " to the library while classifying: " + fullSize
-        classification = classification2
-    elif classification[2] == None:
+        potentialize(data['threadlink'], target)
+      elif classification2[2] < 20: #only classify as potential if very confident
+        librarize(classification[0])
+        macro = ImageMacro.objects.get(key = classification[0])
+        if classification[1] < 25: merge(classification[0], macro)
+      #Unaddressed case: weak classification.  Do not want to classify as potential because
+      #doing sois going out on a limb without strong reason to do so.  Also do not want to
+      #add it as a potential macro because it is likely reduntant.  
+    #Image must be corrput because a value was not attained for closest with distance
+    elif classification[1] == None:
       macro = None
       img_corrupt = True
     else:
-      macro = ImageMacro.objects.get(filename = classification[0])
-    m = Meme(classification = macro, thumbnailLink = data['thumbnail'],
-          fullSizeLink = fullSize, score = data['score'], submitter = data['author'],
-          topDist = classification[2] , topCorr = classification[3] ,
-          source = 'adviceanimals', created = data['created'], threadLink = 'http://reddit.com' + data['permalink'],
-          strong_classification = classification[1], img_corrupt = img_corrupt)
+      macro = ImageMacro.objects.get(key = classification[0])
+      if classification[1] < 25: merge(classification[0], macro)
+    m = Meme(classification = macro, thumbnailLink = arr['thumbnailLink'],
+          fullSizeLink = arr['fullSizeLink'], score = arr['score'], submitter = arr['author'],
+          topDist = classification[1] , topCorr = classification[2] ,
+          source = arr['source'], created = arr['created'], threadLink = arr['threadLink'],
+          img_corrupt = img_corrupt)
     m.save()
-    if classification[2] < 25 and classification[0] != None:
-      if c2: merge(classification[0], macro, detract = 1)
-      else: merge(classification[0], macro)
 
-if ".jpeg" not in data['url']:
-    #have not evaluated this submission yet, run tests and store
-    filepath = dropBoxDir + 'target.jpg'
-    if ".jpg" in data['url'] or ".png" in data['url']:
-      fullSize = data['url']
-    else:
-      fullSize = fullSizePhoto(data['url'])
-    f = open(filepath, 'wb')
-    f.write(urllib3.PoolManager().request('GET', fullSize).data)
-    f.close()
-    img_corrupt = False
-    c2 = False
 page = 'http://reddit.com/r/adviceanimals.json'
-goDeeper = True #stop burrowinandwhen we encounter a page with no posts over a score of 25
+goDeeper = True #stop burrowing when we encounter a page with no posts over a score of 25
 while(goDeeper):
   goDeeper = False
   pageJson = json.loads(urllib3.PoolManager().request('GET', page).data)
   for post in pageJson['data']['children']:
     if post['data']['score'] > 25:
       goDeeper = True
-      processItemFullSize(post)
+      if (".jpg" or ".png") in post['data']['url']:
+        fullSizeLink = post['data']['url']
+      else:
+        fullSizeLink = fullSizePhoto(post['data']['url'])
+      target = Image.open(cS.StringIO(urllib3.PoolManager().request('GET', fullSizeLink).data))
+      postDict = {'threadLink' : 'http://reddit.com' + post['data']['permalink'],
+        'thumbnailLink' : post['data']['thumbnail'], 'fullSizeLink' : fullSizeLink,
+        'created' : post['data']['created'], 'source' : 'r/adviceanimals'}
+      processItem(postDict, target)
   lastId = pageJson['data']['after']
   page = 'http://reddit.com/r/adviceanimals.json?after=' + lastId
   print "On to the next"

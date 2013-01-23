@@ -5,7 +5,7 @@ def classify(target, bucket):
   try:
     target_crop = centerCut(target)
   except:
-    return (None, False, None, None)
+    return (None, None, None)
   topFileByDist, topDistVal = c.distanceTop(target_crop, bucket)
   if topDistVal < 40:
     return (topFileByDist, topDistVal, None)
