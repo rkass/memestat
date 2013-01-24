@@ -1,5 +1,4 @@
 # Django settings for memestat project.
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -11,7 +10,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'memestat_db',                      # Or path to database file if using sqlite3.
         'USER': 'memestat',                      # Not used with sqlite3.
         'PASSWORD': 'sativa',                  # Not used with sqlite3.
@@ -151,4 +150,7 @@ LOGGING = {
     }
 }
 import dj_database_url
-DATABASES['default'] = dj_database_url.config()
+import os
+if os.environ['HOME'] != '/home/ryan':
+  print os.environ['HOME']
+  DATABASES['default'] = dj_database_url.config()
