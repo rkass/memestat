@@ -15,7 +15,11 @@ def getImgs(bkt):
   bucket = conn.get_bucket(bkt)
   keys = bucket.get_all_keys()
   for keyobj in keys:
-    retDict[keyobj.key] = Image.open(cS.StringIO(keyobj.read()))
+    try: 
+      i = Image.open(cS.StringIO(keyobj.read()))
+      retDict[keyobj.key] = i
+    except:
+      print "Couldn't find " keyobj.key
   return retDict
 
 def getPotentials():
