@@ -151,6 +151,6 @@ LOGGING = {
 }
 import dj_database_url
 import os
-if os.environ['HOME'] == '/app':
+if os.environ['HOME'] == '/asfpp':
   #we on heroku, bitche$$$$
   DATABASES['default'] = dj_database_url.config()
