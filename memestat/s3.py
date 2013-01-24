@@ -19,7 +19,7 @@ def getImgs(bkt):
       i = Image.open(cS.StringIO(keyobj.read()))
       retDict[keyobj.key] = i
     except:
-      print "Couldn't find " keyobj.key
+      print "Couldn't find " + keyobj.key
   return retDict
 
 def getPotentials():
