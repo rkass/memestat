@@ -12,13 +12,13 @@ class Meme(models.Model):
   fullSizeLink = models.URLField()
   score = models.IntegerField(null = True)
   submitter = models.CharField(max_length = 200, null = True)
-  topCorr = models.DecimalField(max_digits = 11, decimal_places = 10, null = True)
-  topDist = models.DecimalField(max_digits = 13, decimal_places = 10, null = True)
+  topCorr = models.FloatField(null = True)
+  topDist = models.FloatField(null = True)
   source = models.CharField(max_length = 200)
   created = models.IntegerField()
   threadLink = models.URLField()
   created_at = models.DateTimeField(auto_now_add = True)
-  img_corrput = models.BooleanField()
+  img_corrupt = models.BooleanField()
 
 class PotentialImageMacro(models.Model):
   key = models.CharField(max_length = 1000)

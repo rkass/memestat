@@ -86,19 +86,23 @@ def centerCut(im):
 def distanceTop(target, bucket):
   best = sys.maxint
   bestKey = ""
-  for k, v in s3.getImgs(bucket):
+  count = 0
+  for k, v in s3.getImgs(bucket).items():
     thisDist = rawDistanceHelp(target, centerCut(v))
     if thisDist < best:
       best = thisDist
       bestKey = k
-  return (bestKey, best)
+    count += 1
+  return (bestKey, best, count)
 
 def correlationTop(target, bucket):
   best = -1
   bestKey = ""
-  for k, v in s3.getImgs(bucket):
+  count = 0
+  for k, v in s3.getImgs(bucket).items():
     thisCorrelation = oneDPearsonHelp(target, centerCut(v))
     if thisCorrelation > best:
       best = thisCorrelation
       bestKey = k
-  return (bestKey, best)
+    count += 1
+  return (bestKey, best, count)

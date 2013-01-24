@@ -1,13 +1,14 @@
 import compute as c
 
-#Returns a classified image iff topDist < 40 or topDist == topCorr
 def classify(target, bucket):
-  try:
-    target_crop = centerCut(target)
-  except:
-    return (None, None, None)
-  topFileByDist, topDistVal = c.distanceTop(target_crop, bucket)
-  if topDistVal < 40:
+  target_crop = c.centerCut(target)
+  topFileByDist, topDistVal, count = c.distanceTop(target_crop, bucket)
+  if count < 100:
+    if topDistVal < 20:
+      return (topFileByDist, topDistVal, None)
+    else:
+      return (None, topDistVal, None)
+  elif topDistVal < 40:
     return (topFileByDist, topDistVal, None)
   else:
     topFileByCorr, topCorrVal = c.correlationTop(target_crop, bucket)
