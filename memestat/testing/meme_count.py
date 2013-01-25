@@ -8,4 +8,4 @@ from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro
 
-print Meme.object.all().count()
+print Meme.objects.all().count()
