@@ -8,4 +8,5 @@ from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro
 
-print Meme.objects.all().count()
+print "Classified: " + str(Meme.objects.filter(classification = None).count())
+print "Unclassified: " + str(Meme.objects.filter(classification != None).count())
