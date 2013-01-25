@@ -10,4 +10,4 @@ from stats.models import PotentialImageMacro
 
 classified = Meme.objects.filter(classification = None).count()
 print "Classified: " + str(classified)
-print "Unclassified: " + str(Meme.objects.all() - classified)
+print "Unclassified: " + str(Meme.objects.all().count() - classified)
