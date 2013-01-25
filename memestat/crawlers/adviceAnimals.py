@@ -19,7 +19,8 @@ page = 'http://reddit.com/r/adviceanimals.json'
 goDeeper = True #stop burrowing when we encounter a page with no posts over a score of 25
 while(goDeeper):
   goDeeper = False
-  pageJson = json.loads(urllib3.PoolManager().request('GET', page).data)
+  try: pageJson = json.loads(urllib3.PoolManager().request('GET', page).data)
+  except: continue
   for post in pageJson['data']['children']:
     if post['data']['score'] > 25:
       goDeeper = True
