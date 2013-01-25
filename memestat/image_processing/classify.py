@@ -11,7 +11,7 @@ def classify(target, bucket):
   elif topDistVal < 40:
     return (topFileByDist, topDistVal, None)
   else:
-    topFileByCorr, topCorrVal = c.correlationTop(target_crop, bucket)
+    topFileByCorr, topCorrVal, count = c.correlationTop(target_crop, bucket)
     parent = topFileByDist
     if parent != topFileByCorr: parent = None
     return (parent, topDistVal, topCorrVal)
