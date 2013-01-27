@@ -1,4 +1,5 @@
 import Image
+import requests
 import cStringIO as cS
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -21,13 +22,23 @@ def potentialize(threadLink, target):
     s3.delete('potentialmacros', pims[0].key)
     pims[0].active = False
   s3.add('potentialmacros', threadLink, target) 
+
+#Try to name the library image by performing reverse google image search
+def name(fullSizeLink):
+  headers = {}
+  headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
+  page = requests.get('http://www.google.com/searchbyimage?image_url=' + fullSizeLink, headers=headers).text
+  page = page[page.find('Best guess for this image'):]
+  page = page[page.find('>'):]
+  return page[1 : page.find('<')]
+
   
 def librarize(key):
   s3.add('macros', key, s3.getImg('potentialmacros', key))
   s3.delete('potentialmacros', key)
   pim = PotentialImageMacro.objects.get(key = key)
   pim.active = False
-  im = ImageMacro.objects.create(key = key)
+  im = ImageMacro.objects.create(key = key, name = name(pim.fullSizeLink))
   m = Meme.objects.get(threadLink = pim.threadLink)
   m.classification = im
   m.topdist = 0
