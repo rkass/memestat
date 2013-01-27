@@ -1,5 +1,6 @@
 Django==1.4.3
 PIL==1.1.7
+South==0.7.6
 argparse==1.2.1
 boto==2.7.0
 distribute==0.6.31
@@ -7,5 +8,6 @@ dj-database-url==0.2.1
 dropbox==1.5.1
 gunicorn==0.16.1
 psycopg2==2.4.6
+requests==1.1.0
 urllib3==1.5
 wsgiref==0.1.2

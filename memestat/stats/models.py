@@ -2,8 +2,7 @@ from django.db import models
 
 class ImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
-  name = models.CharField(max_length = 1000)
-
+  name = models.CharField(max_length = 1000, null = True)
 ##For the next two models, created refers to thread creation,
 ##and created_at refers to object creation
 
