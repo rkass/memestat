@@ -18,6 +18,7 @@ from stats.models import PotentialImageMacro
 def potentialize(threadLink, target):
   pims = PotentialImageMacro.objects.filter(active = True).order_by('created_at')
   if pims.count() > 500:
+    print "Hey printing"
     #deactivate the oldest pim
     print pims[0].key
     print pims[0].created_at
