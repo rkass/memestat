@@ -8,4 +8,5 @@ from memestat.views import home
 
 urlpatterns = patterns('',
   ('^$', home),
+  
 )
