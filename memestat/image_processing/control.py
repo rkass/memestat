@@ -18,12 +18,7 @@ from stats.models import PotentialImageMacro
 def potentialize(threadLink, target):
   pims = PotentialImageMacro.objects.filter(active = True).order_by('created_at')
   if pims.count() > 500:
-    print "Hey printing"
     #deactivate the oldest pim
-    print pims[0].key
-    print pims[0].created_at
-    print pims[pims.count() - 1].key
-    print pims[pims.count() - 1].created_at
     s3.delete('potentialmacros', pims[0].key)
     pims[0].active = False
   s3.add('potentialmacros', threadLink, target) 

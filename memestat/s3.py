@@ -37,6 +37,8 @@ def add(bkt, key, img, form = 'JPEG'):
   bucket = conn.get_bucket(bkt)
   newKeyObj = Key(bucket)
   newKeyObj.key = key
+  newKeyObj.set_acl('public-read')
+  newKeyObj.set_metadata('Content-Type', 'image/jpg')
   buf = s.StringIO()
   img.save(buf, form)
   newKeyObj.set_contents_from_string(buf.getvalue())
@@ -45,6 +47,10 @@ def getImg(bkt, key):
   bucket = conn.get_bucket(bkt)
   keyobj = bucket.get_key(key)
   return Image.open(cS.StringIO(keyobj.read()))
+
+def getObj(bkt, key):
+  bucket = conn.get_bucket(bkt)
+  return bucket.get_key(key)
 
 def replace(bkt, key, img, form = 'JPEG'):
   bucket = conn.get_bucket(bkt)
