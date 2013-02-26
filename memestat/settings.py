@@ -58,26 +58,11 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = ''
 
-
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
-
-STATICFILES_DIRS = (
-    os.path.join('/home/ryan/Programming/OpenCV-2.4.2/msheroku/memestat/', 'static'),
-)
-
-
-
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
+STATICFILES_DIRS = ('/home/ryan/Programming/OpenCV-2.4.2/msheroku/memestat/stats/',)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@h7z5g6#shta$vt@%1^fy$*$4g0+fm4ab9_(i5i=-8j0a^!h=^'

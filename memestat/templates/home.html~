@@ -45,7 +45,7 @@
           </button>
 {% load static %}
 {% get_static_prefix as STATIC_PREFIX %}
-          <a class="brand" href="#"><img src="{{ STATIC_PREFIX }} img/memestatlogo2.jpg"></a>
+          <a class="brand" href="#"><img src="{{ STATIC_URL }}img/memestatlogo2.jpg"></a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="#">Front</a></li>
