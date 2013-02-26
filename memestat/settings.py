@@ -56,13 +56,13 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/home/ryan/Programming/OpenCV-2.4.2/msheroku/memestat/static2'
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'collect_static').replace('\\','/')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = ('/home/ryan/Programming/OpenCV-2.4.2/msheroku/memestat/stats/static',)
+STATICFILES_DIRS = ()
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '@h7z5g6#shta$vt@%1^fy$*$4g0+fm4ab9_(i5i=-8j0a^!h=^'
