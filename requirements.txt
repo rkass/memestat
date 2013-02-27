@@ -5,6 +5,7 @@ argparse==1.2.1
 boto==2.7.0
 distribute==0.6.31
 dj-database-url==0.2.1
+django-extensions==1.0.3
 dropbox==1.5.1
 gunicorn==0.16.1
 psycopg2==2.4.6

@@ -31,3 +31,24 @@ class PotentialImageMacro(models.Model):
   threadLink = models.URLField()
   created_at = models.DateTimeField(auto_now_add = True)
   active = models.BooleanField(default = True)
+
+class TopMacro(models.Model):
+  macros = models.ManyToManyField(ImageMacro)
+  dailyScore = models.IntegerField()
+  hourlyScore = models.IntegerField()
+  dailyChange = models.IntegerField()
+  hourlyChange = models.IntegerField()
+
+class ShootingStar(models.Model):
+  macros = models.ManyToManyField(ImageMacro)
+  dailyScore = models.IntegerField()
+  hourlyScore = models.IntegerField()
+  dailyChange = models.IntegerField()
+  hourlyChange = models.IntegerField()
+
+class SinkingStone(models.Model):
+  macros = models.ManyToManyField(ImageMacro)
+  dailyScore = models.IntegerField()
+  hourlyScore = models.IntegerField()
+  dailyChange = models.IntegerField()
+  hourlyChange = models.IntegerField()

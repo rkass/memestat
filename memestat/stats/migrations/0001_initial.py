@@ -9,15 +9,16 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'ImageMacro'
-        db.create_table('stats_imagemacro', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        db.create_table(u'stats_imagemacro', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=1000)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True)),
         ))
-        db.send_create_signal('stats', ['ImageMacro'])
+        db.send_create_signal(u'stats', ['ImageMacro'])
 
         # Adding model 'Meme'
-        db.create_table('stats_meme', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        db.create_table(u'stats_meme', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('classification', self.gf('django.db.models.fields.related.ForeignKey')(related_name='classification', null=True, to=orm['stats.ImageMacro'])),
             ('thumbnailLink', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('fullSizeLink', self.gf('django.db.models.fields.URLField')(max_length=200)),
@@ -31,11 +32,11 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('img_corrupt', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
-        db.send_create_signal('stats', ['Meme'])
+        db.send_create_signal(u'stats', ['Meme'])
 
         # Adding model 'PotentialImageMacro'
-        db.create_table('stats_potentialimagemacro', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        db.create_table(u'stats_potentialimagemacro', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('key', self.gf('django.db.models.fields.CharField')(max_length=1000)),
             ('thumbnailLink', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('fullSizeLink', self.gf('django.db.models.fields.URLField')(max_length=200)),
@@ -47,33 +48,34 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('active', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
-        db.send_create_signal('stats', ['PotentialImageMacro'])
+        db.send_create_signal(u'stats', ['PotentialImageMacro'])
 
 
     def backwards(self, orm):
         # Deleting model 'ImageMacro'
-        db.delete_table('stats_imagemacro')
+        db.delete_table(u'stats_imagemacro')
 
         # Deleting model 'Meme'
-        db.delete_table('stats_meme')
+        db.delete_table(u'stats_meme')
 
         # Deleting model 'PotentialImageMacro'
-        db.delete_table('stats_potentialimagemacro')
+        db.delete_table(u'stats_potentialimagemacro')
 
 
     models = {
-        'stats.imagemacro': {
+        u'stats.imagemacro': {
             'Meta': {'object_name': 'ImageMacro'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True'})
         },
-        'stats.meme': {
+        u'stats.meme': {
             'Meta': {'object_name': 'Meme'},
-            'classification': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'classification'", 'null': 'True', 'to': "orm['stats.ImageMacro']"}),
+            'classification': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'classification'", 'null': 'True', 'to': u"orm['stats.ImageMacro']"}),
             'created': ('django.db.models.fields.IntegerField', [], {}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'fullSizeLink': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'img_corrupt': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'score': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'source': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
@@ -83,13 +85,13 @@ class Migration(SchemaMigration):
             'topCorr': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
             'topDist': ('django.db.models.fields.FloatField', [], {'null': 'True'})
         },
-        'stats.potentialimagemacro': {
+        u'stats.potentialimagemacro': {
             'Meta': {'object_name': 'PotentialImageMacro'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'created': ('django.db.models.fields.IntegerField', [], {}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'fullSizeLink': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
             'score': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'source': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
