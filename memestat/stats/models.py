@@ -1,5 +1,9 @@
 from django.db import models
 
+#class MacroGrouper(models.Manager):
+ # def group(self):
+    
+
 class ImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
   name = models.CharField(max_length = 1000, null = True)
@@ -38,6 +42,7 @@ class TopMacro(models.Model):
   hourlyScore = models.IntegerField()
   dailyChange = models.IntegerField()
   hourlyChange = models.IntegerField()
+  created_at = models.DateTimeField(auto_now_add = True)
 
 class ShootingStar(models.Model):
   macros = models.ManyToManyField(ImageMacro)
@@ -45,6 +50,7 @@ class ShootingStar(models.Model):
   hourlyScore = models.IntegerField()
   dailyChange = models.IntegerField()
   hourlyChange = models.IntegerField()
+  created_at = models.DateTimeField(auto_now_add = True)
 
 class SinkingStone(models.Model):
   macros = models.ManyToManyField(ImageMacro)
@@ -52,3 +58,4 @@ class SinkingStone(models.Model):
   hourlyScore = models.IntegerField()
   dailyChange = models.IntegerField()
   hourlyChange = models.IntegerField()
+  created_at = models.DateTimeField(auto_now_add = True)
