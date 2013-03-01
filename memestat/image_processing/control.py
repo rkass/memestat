@@ -8,7 +8,7 @@ import s3
 import classify
 import compute
 from django.core.management import setup_environ
-setup_environ(settings)
+#setup_environ(settings)
 from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro

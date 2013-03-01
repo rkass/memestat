@@ -24,8 +24,49 @@ def tallyScoresGroups(groups,
   returnSet = []
   for group in groups:
     returnSet.append((group, tallyScore(group, lowerLimit, upperLimit)))
-  return sorted(returnSet, key = lambda tup: tup[1])[::-1] 
- 
+  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
+#Takes a single macro group along with two time intervals and outputs the
+#ratio of the score in interval one to the score of interval two
+def tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2):
+  score1 = 0.
+  for macro in group:
+    memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit1, 
+      created_at__lte = upperLimit1)
+    for meme in memes:
+      score1 += meme.score
+  score2 = 0.
+  for macro in group:
+    memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit2, 
+      created_at__lte = upperLimit2)
+    for meme in memes:
+      score2 += meme.score
+  if score2 == 0:
+    return score1
+  return float(score1) / float(score2)
+
+def tallyScoreGroupRatio(group, lowerLimit, upperLimit):
+  lastDay = tallyScore(group, lowerLimit, upperLimit)
+  forevs = tallyScore(group, upperLimit = lowerLimit)
+  return float(lastDay) / float(forevs)
+
+def tallyScoresGroupsDailyRatio(groups):
+  lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
+  upperLimit = datetime.utcnow().replace(tzinfo = utc)
+  returnSet = []
+  for group in groups:
+    returnSet.append((group, tallyScoreGroupRatio(group, lowerLimit, upperLimit)))
+  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
+
+#Takes an entire set of macro groups along with two sets of time contraints and
+#outputs an array of two-tuples of group, ratio of score of first interval to
+#score of second interval.
+def tallyScoresGroupsInterval(groups, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2):
+  returnSet = []
+  for group in groups:
+    returnSet.append((group, tallyScoreInterval(group, lowerLimit1, upperLimit1,
+      lowerLimit2, upperLimit2)))
+  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
+
 class MacroGrouper(models.Manager):
   def group(self):
     allMacros = self.all().order_by('name')
@@ -42,6 +83,20 @@ class MacroGrouper(models.Manager):
   def memeOfTheDay(self):
     return tallyScoresGroups(self.group(), 
       lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1))[0]
+  #daily
+  def shootingStar(self):
+    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
+    return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
+      datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[0]
+  def sinkingStone(self):
+    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
+    return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
+      datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[::-1][0]
+  def shootingStar2(self):
+    return tallyScoresGroupsDailyRatio(self.group())[0]
+  def sinkingStone2(self):
+    return tallyScoresGroupsDailyRatio(self.group())[::-1][0]
+
 
 class ImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
