@@ -132,7 +132,7 @@ def processItem(arr, target):
           fullSizeLink = arr['fullSizeLink'], score = arr['score'], submitter = arr['author'],
           topDist = classification[1] , topCorr = classification[2] ,
           source = arr['source'], created = arr['created'], threadLink = arr['threadLink'],
-          img_corrupt = img_corrupt)
+          img_corrupt = img_corrupt, name = name(arr['fullSizeLink']))
     m.save()
     if m.classification != None:
       updateName(m.classification)
