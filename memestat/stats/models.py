@@ -41,12 +41,14 @@ def tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2
     for meme in memes:
       score2 += meme.score
   if score2 == 0:
-    return score1
-  return float(score1) / float(score2)
+    return score1, score2
+  return ((float(score1) / float(score2)), score2)
 
 def tallyScoreGroupRatio(group, lowerLimit, upperLimit):
   lastDay = tallyScore(group, lowerLimit, upperLimit)
   forevs = tallyScore(group, upperLimit = lowerLimit)
+  if forevs == 0:
+    return float(lastDay)
   return float(lastDay) / float(forevs)
 
 def tallyScoresGroupsDailyRatio(groups):
@@ -63,8 +65,8 @@ def tallyScoresGroupsDailyRatio(groups):
 def tallyScoresGroupsInterval(groups, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2):
   returnSet = []
   for group in groups:
-    returnSet.append((group, tallyScoreInterval(group, lowerLimit1, upperLimit1,
-      lowerLimit2, upperLimit2)))
+    x, y = tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2)
+    returnSet.append((group, x, y))
   return sorted(returnSet, key = lambda tup: tup[1])[::-1]
 
 class MacroGrouper(models.Manager):
@@ -73,7 +75,7 @@ class MacroGrouper(models.Manager):
     lastName = ''
     returnSet = []
     for macro in allMacros:
-      if macro.name == '' or lastName != macro.name:
+      if macro.name == '' or macro.name == None or lastName != macro.name:
         returnSet.append([macro])
       else:
         returnSet[-1].append(macro)
@@ -82,20 +84,27 @@ class MacroGrouper(models.Manager):
   #returns the highest scoring memegroup for the last 24 hours along with score in a tuple
   def memeOfTheDay(self):
     return tallyScoresGroups(self.group(), 
-      lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1))[0]
+      lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24))[0]
   #daily
-  def shootingStar(self):
-    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
-    return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
-      datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[0]
+#  def shootingStar(self):
+ #   ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
+  #  return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
+   #   datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[0]
   def sinkingStone(self):
-    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
-    return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
-      datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[::-1][0]
-  def shootingStar2(self):
+    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24)
+    stones = tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
+      datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 48), ll1)[::-1]
+    pastScores = []
+    for g, ratio, past in stones:
+      if ratio != 0:
+        break
+      pastScores.append((g, past))
+    return sorted(pastScores, key = lambda tup: tup[1])[::-1][0]
+    
+  def shootingStar(self):
     return tallyScoresGroupsDailyRatio(self.group())[0]
-  def sinkingStone2(self):
-    return tallyScoresGroupsDailyRatio(self.group())[::-1][0]
+ # def sinkingStone2(self):
+  #  return tallyScoresGroupsDailyRatio(self.group())[::-1][0]
 
 
 class ImageMacro(models.Model):

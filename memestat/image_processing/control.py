@@ -52,7 +52,7 @@ def updateName(macro):
   if inCommon == 0:
     memes = Meme.objects.filter(classification = macro).distinct().order_by('topDist')
     for m in memes:
-      if m.name != '':
+      if m.name != '' and m.meme != None:
         macro.name = m.name
         macro.save()
         return m.name
