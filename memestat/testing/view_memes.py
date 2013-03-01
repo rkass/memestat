@@ -17,6 +17,6 @@ for i in ims:
     ioe.append(i)
 if len(ioe) > 1:
   raise Exception("Too general of a string snippet--more than one corresponding macro")
-memes = Meme.objects.filter(classification = ioe[0])
+memes = Meme.objects.filter(classification = ioe[0]).distinct()
 for m in memes:
   print m.fullSizeLink

@@ -11,7 +11,7 @@ def tallyScore(group,
   score = 0
   for macro in group:
     memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit, 
-      created_at__lte = upperLimit)
+      created_at__lte = upperLimit).distinct()
     for meme in memes:
       score += meme.score
   return score
@@ -31,13 +31,13 @@ def tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2
   score1 = 0.
   for macro in group:
     memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit1, 
-      created_at__lte = upperLimit1)
+      created_at__lte = upperLimit1).distinct()
     for meme in memes:
       score1 += meme.score
   score2 = 0.
   for macro in group:
     memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit2, 
-      created_at__lte = upperLimit2)
+      created_at__lte = upperLimit2).distinct()
     for meme in memes:
       score2 += meme.score
   if score2 == 0:

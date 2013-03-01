@@ -8,6 +8,6 @@ from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro
 
-unclassified = Meme.objects.filter(classification = None).count()
+unclassified = Meme.objects.filter(classification = None).distinct().count()
 print "Unclassified: " + str(unclassified)
 print "Classified: " + str(Meme.objects.all().count() - unclassified)

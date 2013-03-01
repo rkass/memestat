@@ -12,7 +12,7 @@ from stats.models import PotentialImageMacro
 macros = ImageMacro.objects.all()
 for macro in macros:
   cnt = Counter()
-  memes = Meme.objects.filter(classification = macro)
+  memes = Meme.objects.filter(classification = macro).distinct()
   oldName = macro.name
   for m in memes:
     name = control.name(m.fullSizeLink)

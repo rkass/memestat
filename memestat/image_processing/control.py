@@ -16,7 +16,7 @@ from stats.models import PotentialImageMacro
 ##adds new pim to s3
 
 def potentialize(threadLink, target):
-  pims = PotentialImageMacro.objects.filter(active = True).order_by('created_at')
+  pims = PotentialImageMacro.objects.filter(active = True).distinct().order_by('created_at')
   if pims.count() > 500:
     #deactivate the oldest pim
     s3.delete('potentialmacros', pims[0].key)
@@ -33,7 +33,7 @@ def name(fullSizeLink):
   return page[1 : page.find('<')]
 
 def updateName(macro):
-  memes = Meme.objects.filter(classification = macro).order_by('name')
+  memes = Meme.objects.filter(classification = macro).distinct().order_by('name')
   mostCommon = memes[0].name
   inCommon = 0
   cnt = 1
@@ -51,7 +51,7 @@ def updateName(macro):
     cnt += 1
   ret = ''
   if inCommon == 0:
-    memes = Meme.objects.filter(classification = macro).order_by('topDist')
+    memes = Meme.objects.filter(classification = macro).distinct().order_by('topDist')
     for m in memes:
       if m.name != '':
         macro.name = m.name
@@ -76,12 +76,12 @@ def librarize(key):
 
 def merge(macro, target):
   macroimg = s3.getImg('macros', macro.key)
-  backedby = Meme.objects.filter(classification = macro).count()
+  backedby = Meme.objects.filter(classification = macro).distinct().count()
   compute.merge(macroimg, target, backedby)
   s3.replace('macros', macro.key, macroimg)
 
 def processItem(arr, target):
-  q = Meme.objects.filter(threadLink = arr['threadLink'])
+  q = Meme.objects.filter(threadLink = arr['threadLink']).distinct()
   #Have we evaluated this submission yet?  Might be worth considering only checking 
   #memes within the last day, or otherwise making the filter stronger
   print "Processing thread: " + arr['threadLink']
