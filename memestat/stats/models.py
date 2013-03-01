@@ -118,6 +118,7 @@ class Meme(models.Model):
   threadLink = models.URLField()
   created_at = models.DateTimeField(auto_now_add = True)
   img_corrupt = models.BooleanField()
+  name = models.CharField(max_length = 1000, null = True)
 
 class PotentialImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
