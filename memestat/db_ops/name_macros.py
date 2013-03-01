@@ -12,13 +12,6 @@ from stats.models import PotentialImageMacro
 macros = ImageMacro.objects.all()
 for macro in macros:
   cnt = Counter()
-  memes = Meme.objects.filter(classification = macro).distinct()
   oldName = macro.name
-  for m in memes:
-    name = control.name(m.fullSizeLink)
-    cnt[name] += 1
-  macro.name = cnt.most_common()[0][0]
-  macro.save()
-  if oldName != macro.name:
-    print "Renamed " + oldName + " to " + macro.name
+  control.updateName(macro)
   
