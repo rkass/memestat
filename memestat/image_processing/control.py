@@ -49,7 +49,6 @@ def updateName(macro):
       currStreak = 0
     last = memes[cnt].name
     cnt += 1
-  ret = ''
   if inCommon == 0:
     memes = Meme.objects.filter(classification = macro).distinct().order_by('topDist')
     for m in memes:
@@ -57,11 +56,13 @@ def updateName(macro):
         macro.name = m.name
         macro.save()
         return m.name
+    macro.name = ''
+    macro.save()
+    return ''
   else:
     macro.name = mostCommon
     macro.save()
     return mostCommon
-  return ''
     
 def librarize(key):
   s3.add('macros', key, s3.getImg('potentialmacros', key))
