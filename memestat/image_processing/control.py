@@ -42,9 +42,9 @@ def updateName(macro):
   while cnt < memes.count():
     if memes[cnt].name != '' and memes[cnt].name == last:
       currStreak += 1
-      if currStreak > inCommon
-      mostCommon = memes[cnt].name
-      inCommon = currStreak
+      if currStreak > inCommon:
+        mostCommon = memes[cnt].name
+        inCommon = currStreak
     else:
       currStreak = 0
     last = memes[cnt].name
@@ -54,8 +54,12 @@ def updateName(macro):
     memes = Meme.objects.filter(classification = macro).order_by('topDist')
     for m in memes:
       if m.name != '':
+        macro.name = m.name
+        macro.save()
         return m.name
   else:
+    macro.name = mostCommon
+    macro.save()
     return mostCommon
   return ''
     
