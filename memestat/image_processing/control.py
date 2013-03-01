@@ -8,7 +8,7 @@ import s3
 import classify
 import compute
 from django.core.management import setup_environ
-#setup_environ(settings)
+setup_environ(settings)
 from stats.models import ImageMacro
 from stats.models import Meme
 from stats.models import PotentialImageMacro
@@ -32,7 +32,33 @@ def name(fullSizeLink):
   page = page[page.find('>'):]
   return page[1 : page.find('<')]
 
-  
+def updateName(macro):
+  memes = Meme.objects.filter(classification = macro).order_by('name')
+  mostCommon = memes[0].name
+  inCommon = 0
+  cnt = 1
+  last = memes[0].name
+  currStreak = 0
+  while cnt < memes.count():
+    if memes[cnt].name != '' and memes[cnt].name == last:
+      currStreak += 1
+      if currStreak > inCommon
+      mostCommon = memes[cnt].name
+      inCommon = currStreak
+    else:
+      currStreak = 0
+    last = memes[cnt].name
+    cnt += 1
+  ret = ''
+  if inCommon == 0:
+    memes = Meme.objects.filter(classification = macro).order_by('topDist')
+    for m in memes:
+      if m.name != '':
+        return m.name
+  else:
+    return mostCommon
+  return ''
+    
 def librarize(key):
   s3.add('macros', key, s3.getImg('potentialmacros', key))
   s3.delete('potentialmacros', key)
@@ -103,3 +129,6 @@ def processItem(arr, target):
           source = arr['source'], created = arr['created'], threadLink = arr['threadLink'],
           img_corrupt = img_corrupt)
     m.save()
+    if m.classification != None:
+      updateName(m.classification)
+  
