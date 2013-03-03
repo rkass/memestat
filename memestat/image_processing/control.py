@@ -72,7 +72,7 @@ def librarize(key):
   im = ImageMacro.objects.create(key = key, name = name(pim.fullSizeLink))
   m = Meme.objects.get(threadLink = pim.threadLink)
   m.classification = im
-  m.topdist = 0
+  m.topDist = 0
   m.save()
 
 def merge(macro, target):
