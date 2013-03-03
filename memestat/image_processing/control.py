@@ -111,10 +111,10 @@ def processItem(arr, target):
         p.save()
         potentialize(arr['threadLink'].replace('/', ''), target)
         print "Added as potential macro."
-      elif classification[1] < 20: #only classify as potential if very confident
+      elif classification[1] < 14: #only classify as potential if very confident
         librarize(classification[0])
         macro = ImageMacro.objects.get(key = classification[0])
-        if classification[1] < 25: merge(macro, target)
+        merge(macro, target)
         print "Moved " + classification[0] + " over to the library, and classified this item as such."
       #Unaddressed case: weak classification.  Do not want to classify as potential because
       #doing sois going out on a limb without strong reason to do so.  Also do not want to
