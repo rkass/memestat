@@ -24,5 +24,5 @@ for macro in macros:
       print snd.threadLink
       fst.delete()
       snd.delete()
-      s3.delete('macros', macro.key)
+#      s3.delete('macros', macro.key)
       macro.delete()
