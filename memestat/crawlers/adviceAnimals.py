@@ -22,7 +22,7 @@ while(goDeeper):
   try: pageJson = json.loads(urllib3.PoolManager().request('GET', page).data)
   except: continue
   for post in pageJson['data']['children']:
-    if post['data']['score'] > 25:
+    if post['data']['score'] > 10:
       goDeeper = True
       if ".jpg" in post['data']['url'] or  ".png" in post['data']['url'] or ".jpeg" in post['data']['url']:
         fullSizeLink = post['data']['url']
