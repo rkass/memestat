@@ -32,7 +32,7 @@ class MacroGrouper(models.Manager):
   #Takes an entire set of macro groups along with time constraints and
   #outputs an array of two-tuples of group, score sorted by the tuples
   #with highest score first
-  def tallyScoresGroups(groups, 
+  def tallyScoresGroups(self, groups, 
     lowerLimit = datetime(2012, 5, 3, 17, 56, 17, 828221, tzinfo=utc),
     upperLimit = datetime.now().replace(tzinfo = utc)):
     returnSet = []

@@ -1,19 +1,19 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import settings
-#from django.core.management import setup_environ
-#setup_environ(settings)
+from django.core.management import setup_environ
+setup_environ(settings)
 from stats.models import *
 
 def computeStats(group):
-  ds = tallyScore(group,
+  ds = ImageMacro.objects.tallyScore(group,
         lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24))
-  hs = tallyScore(group, 
+  hs = ImageMacro.objects.tallyScore(group, 
         lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 1))
-  ths = tallyScore(group,
+  ths = ImageMacro.objects.tallyScore(group,
         lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 2),
         upperLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 1))
-  tds = tallyScore(group,
+  tds = ImageMacro.objects.tallyScore(group,
         lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 48),
         upperLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24))
   tm = TopMacro(dailyScore = ds, hourlyScore = hs)
