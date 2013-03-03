@@ -3,72 +3,8 @@ from django.utils.timezone import utc
 from datetime import datetime, timedelta
 from operator import itemgetter
 
-#Takes a single macro group along with time constraints and outputs
-#the score for that macro group for the given time constraints 
-def tallyScore(group, 
-  lowerLimit = datetime(2012, 5, 3, 17, 56, 17, 828221, tzinfo=utc),
-  upperLimit = datetime.now().replace(tzinfo = utc)):
-  score = 0
-  for macro in group:
-    memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit, 
-      created_at__lte = upperLimit).distinct()
-    for meme in memes:
-      score += meme.score
-  return score
-#Takes an entire set of macro groups along with time constraints and
-#outputs an array of two-tuples of group, score sorted by the tuples
-#with highest score first
-def tallyScoresGroups(groups, 
-  lowerLimit = datetime(2012, 5, 3, 17, 56, 17, 828221, tzinfo=utc),
-  upperLimit = datetime.now().replace(tzinfo = utc)):
-  returnSet = []
-  for group in groups:
-    returnSet.append((group, tallyScore(group, lowerLimit, upperLimit)))
-  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
 #Takes a single macro group along with two time intervals and outputs the
 #ratio of the score in interval one to the score of interval two
-def tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2):
-  score1 = 0.
-  for macro in group:
-    memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit1, 
-      created_at__lte = upperLimit1).distinct()
-    for meme in memes:
-      score1 += meme.score
-  score2 = 0.
-  for macro in group:
-    memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit2, 
-      created_at__lte = upperLimit2).distinct()
-    for meme in memes:
-      score2 += meme.score
-  if score2 == 0:
-    return score1, score2
-  return ((float(score1) / float(score2)), score2)
-
-def tallyScoreGroupRatio(group, lowerLimit, upperLimit):
-  lastDay = tallyScore(group, lowerLimit, upperLimit)
-  forevs = tallyScore(group, upperLimit = lowerLimit)
-  if forevs == 0:
-    return float(lastDay)
-  return float(lastDay) / float(forevs)
-
-def tallyScoresGroupsDailyRatio(groups):
-  lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
-  upperLimit = datetime.utcnow().replace(tzinfo = utc)
-  returnSet = []
-  for group in groups:
-    returnSet.append((group, tallyScoreGroupRatio(group, lowerLimit, upperLimit)))
-  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
-
-#Takes an entire set of macro groups along with two sets of time contraints and
-#outputs an array of two-tuples of group, ratio of score of first interval to
-#score of second interval.
-def tallyScoresGroupsInterval(groups, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2):
-  returnSet = []
-  for group in groups:
-    x, y = tallyScoreInterval(group, lowerLimit1, upperLimit1, lowerLimit2, upperLimit2)
-    returnSet.append((group, x, y))
-  return sorted(returnSet, key = lambda tup: tup[1])[::-1]
-
 class MacroGrouper(models.Manager):
   def group(self):
     allMacros = self.all().order_by('name')
@@ -81,32 +17,75 @@ class MacroGrouper(models.Manager):
         returnSet[-1].append(macro)
       lastName = macro.name
     return returnSet
+  #Takes a single macro group along with time constraints and outputs
+  #the score for that macro group for the given time constraints 
+  def tallyScore(self,group, 
+    lowerLimit = datetime(2012, 5, 3, 17, 56, 17, 828221, tzinfo=utc),
+    upperLimit = datetime.now().replace(tzinfo = utc)):
+    score = 0
+    for macro in group:
+      memes = Meme.objects.filter(classification = macro, created_at__gte = lowerLimit, 
+        created_at__lte = upperLimit).distinct()
+    for meme in memes:
+      score += meme.score
+    return score
+  #Takes an entire set of macro groups along with time constraints and
+  #outputs an array of two-tuples of group, score sorted by the tuples
+  #with highest score first
+  def tallyScoresGroups(groups, 
+    lowerLimit = datetime(2012, 5, 3, 17, 56, 17, 828221, tzinfo=utc),
+    upperLimit = datetime.now().replace(tzinfo = utc)):
+    returnSet = []
+    for group in groups:
+      returnSet.append((group, self.tallyScore(group, lowerLimit, upperLimit)))
+    return sorted(returnSet, key = lambda tup: tup[1])[::-1]
+  #returns the points per day of the group for the last n days
+  def nDayAverage(self, group, n):
+    score = self.tallyScore(group, lowerLimit = datetime.utcnow().replace(tzinfo = utc) - 
+      timedelta(hours = 24 * n))
+    return float(score) / n
+  #returns nDayAverage / lastDay, someNumber.  if it's an infinite ratio,
+  #someNumber = lastDay and use None to rep infinity, anything else someNumber = lastDay
+  def nDayAverageRatio(self, group, n):
+    nDayAverage = float(self.nDayAverage(group, n))
+    lastDay = float(self.tallyScore(group, lowerLimit = datetime.utcnow().replace(tzinfo = utc) -
+      timedelta(hours = 24)))
+    if lastDay == 0:
+      return (None, nDayAverage)
+    else:
+      return (nDayAverage / lastDay, lastDay)
+  def nDayAverageRatioGroups(self, groups, n):
+    ret = []
+    for group in groups:
+      ratio, someNumber = self.nDayAverageRatio(group, n)
+      ret.append((group, ratio, someNumber))
+    return  sorted(ret, key = lambda tup: tup[1])
+  def sinkingStone(self):
+    nones = []
+    macros = self.nDayAverageRatioGroups(self.group(), 3)[::-1]
+    newNone = macros.pop()
+    while(newNone[1] == None):
+      nones.append(newNone)
+      newNone = macros.pop()
+    if len(nones) == 0:
+      return newNone
+    return max(nones, key = lambda x:x[2])
+  def shootingStar(self):
+    zeros = []
+    macros = self.nDayAverageRatioGroups(self.group(), 3)[::-1]
+    newZero = macros.pop()
+    while(newZero[1] <= 0):
+      if newZero[1] == 0:
+        zeros.append(newZero)
+      newZero = macros.pop()
+    if len(zeros) == 0:
+      return newZero
+    return max(zeros, key = lambda x:x[2])
   #returns the highest scoring memegroup for the last 24 hours along with score in a tuple
   def memeOfTheDay(self):
-    return tallyScoresGroups(self.group(), 
+    return self.tallyScoresGroups(self.group(), 
       lowerLimit = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24))[0]
-  #daily
-#  def shootingStar(self):
- #   ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 1)
-  #  return tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
-   #   datetime.utcnow().replace(tzinfo = utc) - timedelta(days = 2), ll1)[0]
-  def sinkingStone(self):
-    ll1 = datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 24)
-    stones = tallyScoresGroupsInterval(self.group(), ll1, datetime.now().replace(tzinfo = utc),
-      datetime.utcnow().replace(tzinfo = utc) - timedelta(hours = 48), ll1)[::-1]
-    pastScores = []
-    for g, ratio, past in stones:
-      if ratio != 0:
-        break
-      pastScores.append((g, past))
-    return sorted(pastScores, key = lambda tup: tup[1])[::-1][0]
-    
-  def shootingStar(self):
-    return tallyScoresGroupsDailyRatio(self.group())[0]
- # def sinkingStone2(self):
-  #  return tallyScoresGroupsDailyRatio(self.group())[::-1][0]
-
-
+ 
 class ImageMacro(models.Model):
   key = models.CharField(max_length = 1000)
   name = models.CharField(max_length = 1000, null = True)

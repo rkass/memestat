@@ -111,7 +111,7 @@ def processItem(arr, target):
         p.save()
         potentialize(arr['threadLink'].replace('/', ''), target)
         print "Added as potential macro."
-      elif classification[2] < 20: #only classify as potential if very confident
+      elif classification[1] < 20: #only classify as potential if very confident
         librarize(classification[0])
         macro = ImageMacro.objects.get(key = classification[0])
         if classification[1] < 25: merge(macro, target)
