@@ -35,6 +35,8 @@ def topMacro():
   if hc != None:
     tm.hourlyChange = hc
   tm.save()
+  for m in mod:
+    tm.macros.add(m)
   print "Top Macro created and stored with name: " + str(mod[0].name)
   print "Daily Score: " + str(ds)
   print "Hourly Score: " + str(hs) 
@@ -51,6 +53,8 @@ def sinkingStone():
   if hc != None:
     ss.hourlyChange = hc
   ss.save()
+  for g in group:
+    ss.macros.add(g)
   print "Sinking Stone created and stored with name: " + str(group[0].name)
   print "Daily Score: " + str(ds)
   print "Hourly Score: " + str(hs)
@@ -67,6 +71,8 @@ def shootingStar():
   if hc != None:
     ss.hourlyChange = hc
   ss.save()
+  for g in group:
+    ss.macros.add(g)
   print "Shooting Star created and stored with name: " + str(group[0].name)
   print "Daily Score: " + str(ds)
   print "Hourly Score: " + str(hs)
