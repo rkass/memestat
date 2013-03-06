@@ -15,7 +15,6 @@ def home(request):
   topMemeImg = orderMemes(topMeme.macros.all())[0].fullSizeLink
   sinkingStoneImg = orderMemes(sinkingStone.macros.all())[0].fullSizeLink
   shootingStarImg = orderMemes(shootingStar.macros.all())[0].fullSizeLink
-  
   return render_to_response('home.html', {'topMemeImg' : topMemeImg, 
                                           'shootingStarImg' : shootingStarImg,
                                           'sinkingStoneImg' : sinkingStoneImg,
