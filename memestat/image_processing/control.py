@@ -87,7 +87,7 @@ def processItem(arr, target):
   #memes within the last day, or otherwise making the filter stronger
   print "Processing thread: " + arr['threadLink']
   if q.count() > 1:
-    print "More than one of the same permalink in db for permalink:" + arr['threadLink'])
+    print "More than one of the same permalink in db for permalink:" + arr['threadLink']
     return
   if q.count() == 1:
     #if we have, update the score and move on
