@@ -19,8 +19,8 @@ def potentialize(threadLink, target):
   pims = PotentialImageMacro.objects.filter(active = True).distinct().order_by('created_at')
   if pims.count() > 500:
     #deactivate the oldest pim
-    s3.delete('potentialmacros', pims[0].key)
-    pims[0].active = False
+    #s3.delete('potentialmacros', pims[0].key)
+    #pims[0].active = False
   s3.add('potentialmacros', threadLink, target) 
 
 #Try to name the library image by performing reverse google image search
