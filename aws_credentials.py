@@ -1,2 +1,0 @@
-key = 'AKIAJL2BLOXU27C2GXUQ'
-secret = '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'
